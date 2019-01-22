@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    .small {
+      position: relative;
+      width: 300px;
+      margin: 100px;
+      cursor: move;
+    }
+    .mask {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background: rgba(204, 204, 204, 0.4);
+      top: 0;
+      display: none;
+    }
+    .big {
+      position: absolute;
+      left: 600px;
+      top: 200px;
+      display: none;
+      width: 600px;
+      height: 600px;
+      border: 1px solid brown;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <section class="container" id="box">
+    <div class="small">
+      <img src="../image/1.png" width="300" height="172" alt="" />
+      <div class="mask"></div>
+    </div>
+    <div class="big">
+      <img src="../image/1.png" width="1200" alt="" />
+    </div>
+  </section>
+  <script>
+    var box = document.getElementById('box');
+    //小图div
+    var smallDiv = box.children[0];
+    //大图div
+    var bigDiv = box.children[1];
+    //大图
+    var bigImg = bigDiv.children[0];
+    //遮挡层
+    var mask = smallDiv.children[1];
+
+    smallDiv.onmouseover = function () {
+      mask.style.display = 'block';
+      bigDiv.style.display = 'block';
+    }
+    smallDiv.onmouseout = function () {
+      mask.style.display = 'none';
+      bigDiv.style.display = 'none';
+    }
+
+    smallDiv.onmousemove = function (e) {
+      //蒙层坐标 = 鼠标在文档区域坐标 - 图片的margin值 - 蒙层宽高的一半     （使鼠标在蒙层正中间）
+      var x = Math.floor(e.pageX - parseInt(getComputedStyle(smallDiv,null)['marginLeft']) - mask.offsetWidth / 2);
+      var y = Math.floor(e.pageY - parseInt(getComputedStyle(smallDiv,null)['marginTop']) - mask.offsetHeight / 2);
+
+      //设置蒙层移动边界
+      //x最小值
+      x = (x <= 0 ? 0 : x);
+      //x最大值 = 图片框的宽度 - 蒙层宽
+      var maskX = smallDiv.offsetWidth - mask.offsetWidth;
+      x = ( x >= maskX ? maskX : x );
+      //同理y
+      //y最小值
+      y = (y <= 0 ? 0 : y);
+      //y最大值 = 图片框的宽度 - 蒙层宽
+      var maskY = Math.floor(smallDiv.offsetHeight - mask.offsetHeight);
+      y = ( y >= maskY ? maskY - 4 : y ); //蒙层不知道为什么会出去一点，所以减4
+      mask.style.left = Math.floor(x) + 'px';
+      mask.style.top = Math.floor(y) + 'px';
+
+      // 蒙层移动距离/ 大图移动距离 = 蒙层最大移动距离/大图最大移动距离
+      //横向大图 最大 移动距离
+      var maxX = bigImg.offsetWidth - bigDiv.offsetWidth;
+      //纵向大图 最大 移动距离
+      var maxY = bigImg.offsetHeight - bigDiv.offsetHeight;
+
+
+      //所以 横向大图移动距离 = 蒙层移动距离 * 大图最大移动距离 / 蒙层最大移动距离
+      var bigImgMoveX = x * maxX / maskX;
+      //所以 纵向大图移动距离 = 蒙层移动距离 * 大图最大移动距离 / 蒙层最大移动距离
+      var bigImgMoveY = y * maxY / maskY;
+      
+      console.log('bigImgMoveX'+bigImgMoveX);
+      console.log('bigImgMoveY'+bigImgMoveY);
+      bigImg.style.marginLeft = -bigImgMoveX + 'px';
+      bigImg.style.marginTop = -bigImgMoveY + 'px';
+    }
+  </script>
+</body>
+</html>
